@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Digital Hearth - Cart</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800;900&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#313030",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-lowest": "#0e0e0e",
+                        "primary-fixed-dim": "#ffb3b4",
+                        "surface-bright": "#393939",
+                        "inverse-primary": "#ba1434",
+                        "on-primary": "#680016",
+                        "on-secondary-container": "#b1bb7c",
+                        "on-tertiary": "#3a3000",
+                        "on-error-container": "#ffdad6",
+                        "background": "#131313",
+                        "on-primary-fixed": "#40000a",
+                        "secondary-fixed": "#dfe8a6",
+                        "on-error": "#690005",
+                        "surface-container": "#201f1f",
+                        "error-container": "#93000a",
+                        "tertiary-container": "#c9a900",
+                        "primary-container": "#c41e3a",
+                        "on-background": "#e5e2e1",
+                        "secondary-container": "#434b18",
+                        "outline": "#aa8989",
+                        "on-secondary-fixed-variant": "#434b18",
+                        "outline-variant": "#5b4040",
+                        "surface-tint": "#ffb3b4",
+                        "on-surface": "#e5e2e1",
+                        "tertiary-fixed": "#ffe16d",
+                        "on-primary-fixed-variant": "#920023",
+                        "on-tertiary-fixed-variant": "#544600",
+                        "error": "#ffb4ab",
+                        "tertiary": "#e9c400",
+                        "on-secondary-fixed": "#191e00",
+                        "primary-fixed": "#ffdad9",
+                        "on-secondary": "#2d3404",
+                        "surface-container-highest": "#353534",
+                        "primary": "#ffb3b4",
+                        "surface-variant": "#353534",
+                        "on-primary-container": "#ffdada",
+                        "surface-container-low": "#1c1b1b",
+                        "tertiary-fixed-dim": "#e9c400",
+                        "surface-dim": "#131313",
+                        "on-tertiary-container": "#4c3e00",
+                        "on-tertiary-fixed": "#221b00",
+                        "surface": "#131313",
+                        "on-surface-variant": "#e3bebd",
+                        "inverse-surface": "#e5e2e1",
+                        "secondary": "#c3cc8c",
+                        "secondary-fixed-dim": "#c3cc8c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Lexend", "sans-serif"],
+                        "body": ["Manrope", "sans-serif"],
+                        "label": ["Manrope", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            font-family: theme('fontFamily.body');
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col selection:bg-primary selection:text-on-primary">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#131313]/70 backdrop-blur-[20px] no-border shadow-none shadow-[0_30px_60px_rgba(229,226,225,0.05)]">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-[1920px] mx-auto">
+<div class="text-2xl font-black tracking-tighter text-[#E5E2E1] font-lexend uppercase font-headline">
+                HEARTH
+            </div>
+<div class="hidden md:flex items-center gap-8 font-label">
+<a class="text-[#E5E2E1]/70 font-medium hover:text-[#E5E2E1] transition-colors hover:bg-[#E5E2E1]/5 duration-300 px-3 py-1 rounded-md" href="#">Menu</a>
+<a class="text-[#E5E2E1]/70 font-medium hover:text-[#E5E2E1] transition-colors hover:bg-[#E5E2E1]/5 duration-300 px-3 py-1 rounded-md" href="#">Gallery</a>
+<a class="text-[#E5E2E1]/70 font-medium hover:text-[#E5E2E1] transition-colors hover:bg-[#E5E2E1]/5 duration-300 px-3 py-1 rounded-md" href="#">How it Works</a>
+<a class="text-[#E5E2E1]/70 font-medium hover:text-[#E5E2E1] transition-colors hover:bg-[#E5E2E1]/5 duration-300 px-3 py-1 rounded-md" href="#">Offers</a>
+</div>
+<div class="flex items-center gap-4 text-[#FFB3B4]">
+<button class="scale-95 active:scale-90 transition-transform p-2 hover:bg-[#E5E2E1]/5 rounded-full duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+</button>
+<button class="scale-95 active:scale-90 transition-transform p-2 hover:bg-[#E5E2E1]/5 rounded-full duration-300">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-32 pb-24 px-6 md:px-12 max-w-[1600px] mx-auto w-full">
+<div class="mb-12">
+<h1 class="font-headline text-5xl md:text-6xl font-black tracking-tight text-on-background">Your Order</h1>
+<p class="font-body text-on-surface-variant mt-4 text-lg">Curated selections from the fire.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
+<!-- Cart Items List (Left Column) -->
+<div class="lg:col-span-7 xl:col-span-8 flex flex-col gap-12">
+<!-- Item 1 -->
+<div class="group flex flex-col sm:flex-row items-start sm:items-center gap-8 relative p-6 bg-surface-container-low rounded-[2rem] shadow-[0_30px_60px_rgba(229,226,225,0.02)] hover:shadow-[0_30px_60px_rgba(229,226,225,0.05)] transition-all duration-500">
+<!-- Image breaking the box slightly -->
+<div class="w-full sm:w-40 h-40 sm:-mt-12 sm:-ml-8 flex-shrink-0 relative z-10 drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)] transition-transform duration-500 group-hover:scale-105 group-hover:rotate-2">
+<img alt="high resolution cutout of a rustic neapolitan margherita pizza with blistered crust fresh basil and melted mozzarella" class="w-full h-full object-cover rounded-full aspect-square border-4 border-surface-container-low" data-alt="high resolution cutout of a rustic neapolitan margherita pizza with blistered crust fresh basil and melted mozzarella" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmFQU92D0Zd0svfDM43e180uCSB5cKL7gjKsLHTmzuBtIOOXXBhkk9wsQG0F3R5CW35W9dVPWLrnOhiGUEjgp8lfXHURDrC6BIpBdQ_-utA8yvrSfzMHXaWAvsLkqCuo0xxM--a1FmkzahhuDb1w7rNWkHKXpzci4PnjR4fPhFcV9J4qhAD1EOTaEEz6ZP6LhRXAZSi_7xB8UhXzhblLwqc0J0aWvBR7A62MYeUmhci3MPF5QwG_QhL9w07qSO14-5ZIMwa3PcVJI"/>
+</div>
+<div class="flex-grow flex flex-col sm:flex-row justify-between w-full items-start sm:items-center gap-6">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline text-2xl font-bold text-on-background">Margherita Verace</h3>
+<p class="font-body text-on-surface-variant text-sm max-w-xs">San Marzano DOP, Fior di Latte, Fresh Basil, EVOO.</p>
+<span class="font-headline text-tertiary font-bold text-xl mt-2">$22.00</span>
+</div>
+<div class="flex items-center gap-6">
+<!-- Quantity Selector - Recessed -->
+<div class="flex items-center bg-surface-container-lowest rounded-xl p-1 ring-1 ring-outline-variant/10">
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors rounded-lg hover:bg-surface-bright/50">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<span class="font-headline font-bold text-on-background w-8 text-center">1</span>
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors rounded-lg hover:bg-surface-bright/50">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+<button class="text-outline hover:text-error transition-colors p-2">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="group flex flex-col sm:flex-row items-start sm:items-center gap-8 relative p-6 bg-surface-container-low rounded-[2rem] shadow-[0_30px_60px_rgba(229,226,225,0.02)] hover:shadow-[0_30px_60px_rgba(229,226,225,0.05)] transition-all duration-500">
+<div class="w-full sm:w-40 h-40 sm:-mt-12 sm:-ml-8 flex-shrink-0 relative z-10 drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)] transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-2">
+<img alt="high resolution cutout of a spicy neapolitan pizza with nduja spicy salami and chili oil" class="w-full h-full object-cover rounded-full aspect-square border-4 border-surface-container-low" data-alt="high resolution cutout of a spicy neapolitan pizza with nduja spicy salami and chili oil" src="https://lh3.googleusercontent.com/aida-public/AB6AXuApnC1nAedVyBQFulePhwHI6A5-ilOpaomfebw5P_wDvtZQ8L7uegI7lJ91sjJz1HxihOWj_pjw9ON2oBPtQTlzSa9CRwHjMoaw066u44SYAm6MJBmH3WqoGC05WNoyFEbk5TQz0HcKbHC4Dtc7gnkwOxZ6KnaAY8OVwuTziZQdngqkYCAHIlr7K42NkXF5pznQjO90GhAR189KJZGOzGoaBekhapW-9khOEQBOsn0XLrb6OKq__pM-umbGtXdLFNgeZTHMk7jbXKc"/>
+</div>
+<div class="flex-grow flex flex-col sm:flex-row justify-between w-full items-start sm:items-center gap-6">
+<div class="flex flex-col gap-2">
+<h3 class="font-headline text-2xl font-bold text-on-background">Inferno Nduja</h3>
+<p class="font-body text-on-surface-variant text-sm max-w-xs">Spicy Nduja, Calabrian Chilies, Smoked Provola, Honey.</p>
+<span class="font-headline text-tertiary font-bold text-xl mt-2">$26.00</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center bg-surface-container-lowest rounded-xl p-1 ring-1 ring-outline-variant/10">
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors rounded-lg hover:bg-surface-bright/50">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<span class="font-headline font-bold text-on-background w-8 text-center">2</span>
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors rounded-lg hover:bg-surface-bright/50">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+<button class="text-outline hover:text-error transition-colors p-2">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Order Summary Glassmorphism Card (Right Column) -->
+<div class="lg:col-span-5 xl:col-span-4">
+<div class="sticky top-32 bg-surface/60 backdrop-blur-2xl ring-1 ring-outline-variant/15 rounded-[2rem] p-8 md:p-10 shadow-[0_40px_80px_rgba(0,0,0,0.4)] relative overflow-hidden">
+<!-- Decorative inner glow -->
+<div class="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+<h2 class="font-headline text-3xl font-bold text-on-background mb-8">Summary</h2>
+<div class="flex flex-col gap-6 font-body text-on-surface-variant mb-8">
+<div class="flex justify-between items-center">
+<span class="tracking-[0.05rem] text-sm uppercase">Subtotal</span>
+<span class="font-headline font-medium text-on-background">$74.00</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="tracking-[0.05rem] text-sm uppercase">Taxes &amp; Fees</span>
+<span class="font-headline font-medium text-on-background">$6.29</span>
+</div>
+<div class="flex justify-between items-center text-secondary">
+<span class="tracking-[0.05rem] text-sm uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">local_fire_department</span>
+                                Hearth Member Discount
+                            </span>
+<span class="font-headline font-medium">-$5.00</span>
+</div>
+</div>
+<!-- Tonal Shift for Total -->
+<div class="bg-surface-container-lowest/50 rounded-2xl p-6 mb-8 flex justify-between items-end ring-1 ring-outline-variant/10">
+<span class="font-headline font-medium text-on-background">Total</span>
+<span class="font-headline text-4xl font-black text-tertiary">$75.29</span>
+</div>
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary-fixed font-headline font-bold text-lg rounded-[1.5rem] py-5 flex justify-center items-center gap-3 hover:shadow-[0_0_30px_rgba(196,30,58,0.4)] transition-all duration-300 transform active:scale-[0.98]">
+                        Proceed to Checkout
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<p class="font-body text-xs text-center text-on-surface-variant/60 mt-6 tracking-[0.05rem]">
+                        SECURE ENCRYPTED TRANSACTION
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 border-t border-[#E5E2E1]/15 bg-[#131313] tonal-shift via surface-container-low flat mt-auto z-10 relative">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 w-full gap-6 max-w-[1920px] mx-auto">
+<div class="text-[#E5E2E1] font-lexend font-bold font-headline text-xl">
+                HEARTH
+            </div>
+<div class="font-manrope text-[12px] tracking-[0.05rem] uppercase text-[#C41E3A] text-center max-w-md md:max-w-none">
+                © 2024 THE DIGITAL HEARTH. BORN IN NAPLES, ENGINEERED FOR DELIGHT.
+            </div>
+<div class="flex gap-6 font-label text-[12px] tracking-[0.05rem] uppercase">
+<a class="text-[#E5E2E1]/40 hover:text-[#FFB3B4] transition-colors opacity-80 hover:opacity-100" href="#">Privacy</a>
+<a class="text-[#E5E2E1]/40 hover:text-[#FFB3B4] transition-colors opacity-80 hover:opacity-100" href="#">Terms</a>
+<a class="text-[#E5E2E1]/40 hover:text-[#FFB3B4] transition-colors opacity-80 hover:opacity-100" href="#">Sourcing</a>
+<a class="text-[#E5E2E1]/40 hover:text-[#FFB3B4] transition-colors opacity-80 hover:opacity-100" href="#">Allergens</a>
+</div>
+</div>
+</footer>
+</body></html>

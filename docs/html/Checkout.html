@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout - The Digital Hearth</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700;900&amp;family=Manrope:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#313030",
+                    "surface-container-high": "#2a2a2a",
+                    "surface-container-lowest": "#0e0e0e",
+                    "primary-fixed-dim": "#ffb3b4",
+                    "surface-bright": "#393939",
+                    "inverse-primary": "#ba1434",
+                    "on-primary": "#680016",
+                    "on-secondary-container": "#b1bb7c",
+                    "on-tertiary": "#3a3000",
+                    "on-error-container": "#ffdad6",
+                    "background": "#131313",
+                    "on-primary-fixed": "#40000a",
+                    "secondary-fixed": "#dfe8a6",
+                    "on-error": "#690005",
+                    "surface-container": "#201f1f",
+                    "error-container": "#93000a",
+                    "tertiary-container": "#c9a900",
+                    "primary-container": "#c41e3a",
+                    "on-background": "#e5e2e1",
+                    "secondary-container": "#434b18",
+                    "outline": "#aa8989",
+                    "on-secondary-fixed-variant": "#434b18",
+                    "outline-variant": "#5b4040",
+                    "surface-tint": "#ffb3b4",
+                    "on-surface": "#e5e2e1",
+                    "tertiary-fixed": "#ffe16d",
+                    "on-primary-fixed-variant": "#920023",
+                    "on-tertiary-fixed-variant": "#544600",
+                    "error": "#ffb4ab",
+                    "tertiary": "#e9c400",
+                    "on-secondary-fixed": "#191e00",
+                    "primary-fixed": "#ffdad9",
+                    "on-secondary": "#2d3404",
+                    "surface-container-highest": "#353534",
+                    "primary": "#ffb3b4",
+                    "surface-variant": "#353534",
+                    "on-primary-container": "#ffdada",
+                    "surface-container-low": "#1c1b1b",
+                    "tertiary-fixed-dim": "#e9c400",
+                    "surface-dim": "#131313",
+                    "on-tertiary-container": "#4c3e00",
+                    "on-tertiary-fixed": "#221b00",
+                    "surface": "#131313",
+                    "on-surface-variant": "#e3bebd",
+                    "inverse-surface": "#e5e2e1",
+                    "secondary": "#c3cc8c",
+                    "secondary-fixed-dim": "#c3cc8c"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "2xl": "1rem",
+                    "3xl": "1.5rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Lexend", "sans-serif"],
+                    "body": ["Manrope", "sans-serif"],
+                    "label": ["Manrope", "sans-serif"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body min-h-screen antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- Minimal Secure Header (Transactional intent logic applied: Navigation suppressed) -->
+<header class="w-full px-8 py-6 flex items-center justify-between z-50 relative isolate">
+<div class="absolute inset-0 bg-surface/70 backdrop-blur-[20px] -z-10"></div>
+<div class="text-2xl font-black tracking-tighter text-on-background font-headline uppercase">
+            HEARTH
+        </div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-xl">lock</span>
+<span class="font-label text-sm tracking-[0.05rem] uppercase font-bold">Secure Checkout</span>
+</div>
+</header>
+<main class="max-w-[1440px] mx-auto px-6 md:px-12 py-8 lg:py-16 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 relative isolate">
+<!-- Left Column: Forms & Flow -->
+<div class="lg:col-span-7 flex flex-col gap-12">
+<!-- Progress Indicator -->
+<div class="flex items-center justify-between w-full max-w-md relative">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[2px] bg-surface-container-highest -z-10 rounded-full"></div>
+<!-- Step 1 Active -->
+<div class="flex flex-col items-center gap-3 relative bg-surface px-2">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-headline font-bold text-sm shadow-[0_0_20px_rgba(255,179,180,0.3)]">1</div>
+<span class="font-label text-xs tracking-[0.05rem] uppercase text-primary font-bold">Shipping</span>
+</div>
+<!-- Step 2 Inactive -->
+<div class="flex flex-col items-center gap-3 relative bg-surface px-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-headline font-bold text-sm ring-1 ring-outline-variant/30">2</div>
+<span class="font-label text-xs tracking-[0.05rem] uppercase text-on-surface-variant font-medium">Payment</span>
+</div>
+<!-- Step 3 Inactive -->
+<div class="flex flex-col items-center gap-3 relative bg-surface px-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-headline font-bold text-sm ring-1 ring-outline-variant/30">3</div>
+<span class="font-label text-xs tracking-[0.05rem] uppercase text-on-surface-variant font-medium">Review</span>
+</div>
+</div>
+<!-- Shipping Section -->
+<section class="flex flex-col gap-8">
+<div class="flex items-end justify-between">
+<h1 class="font-headline text-3xl md:text-4xl font-bold tracking-tight text-on-surface">Delivery Details</h1>
+</div>
+<div class="bg-surface-container-low rounded-3xl p-6 md:p-10 flex flex-col gap-6 shadow-[0_30px_60px_rgba(0,0,0,0.2)]">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Recessed Input Field -->
+<div class="relative bg-surface-container-lowest rounded-xl p-3 ring-1 ring-outline-variant/15 focus-within:ring-primary/50 transition-all group md:col-span-2">
+<label class="block text-[10px] uppercase tracking-wider text-on-surface-variant font-bold mb-1 group-focus-within:text-primary transition-colors">Full Name</label>
+<input class="w-full bg-transparent text-on-surface font-body text-base outline-none placeholder:text-on-surface-variant/30" placeholder="e.g. Massimo Bottura" type="text"/>
+</div>
+<div class="relative bg-surface-container-lowest rounded-xl p-3 ring-1 ring-outline-variant/15 focus-within:ring-primary/50 transition-all group md:col-span-2">
+<label class="block text-[10px] uppercase tracking-wider text-on-surface-variant font-bold mb-1 group-focus-within:text-primary transition-colors">Street Address</label>
+<input class="w-full bg-transparent text-on-surface font-body text-base outline-none placeholder:text-on-surface-variant/30" placeholder="Via dei Tribunali 32" type="text"/>
+</div>
+<div class="relative bg-surface-container-lowest rounded-xl p-3 ring-1 ring-outline-variant/15 focus-within:ring-primary/50 transition-all group">
+<label class="block text-[10px] uppercase tracking-wider text-on-surface-variant font-bold mb-1 group-focus-within:text-primary transition-colors">City</label>
+<input class="w-full bg-transparent text-on-surface font-body text-base outline-none placeholder:text-on-surface-variant/30" placeholder="Napoli" type="text"/>
+</div>
+<div class="relative bg-surface-container-lowest rounded-xl p-3 ring-1 ring-outline-variant/15 focus-within:ring-primary/50 transition-all group">
+<label class="block text-[10px] uppercase tracking-wider text-on-surface-variant font-bold mb-1 group-focus-within:text-primary transition-colors">Postal Code</label>
+<input class="w-full bg-transparent text-on-surface font-body text-base outline-none placeholder:text-on-surface-variant/30" placeholder="80138" type="text"/>
+</div>
+</div>
+<!-- Delivery Options (Chips style) -->
+<div class="pt-4 flex flex-col gap-4">
+<label class="block text-xs uppercase tracking-[0.05rem] text-on-surface-variant font-bold">Delivery Speed</label>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Selected Chip -->
+<div class="bg-secondary-container text-on-secondary-container rounded-xl p-4 flex items-center justify-between cursor-pointer ring-1 ring-secondary-fixed/30 shadow-inner">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<div class="flex flex-col">
+<span class="font-headline font-bold text-sm">Express Hearth</span>
+<span class="font-label text-xs opacity-80">Under 30 mins</span>
+</div>
+</div>
+<span class="font-headline font-bold text-sm">+$4.00</span>
+</div>
+<!-- Unselected Chip -->
+<div class="bg-surface-container-high hover:bg-surface-bright text-on-surface rounded-xl p-4 flex items-center justify-between cursor-pointer transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">schedule</span>
+<div class="flex flex-col">
+<span class="font-headline font-bold text-sm">Standard</span>
+<span class="font-label text-xs text-on-surface-variant">45-60 mins</span>
+</div>
+</div>
+<span class="font-headline font-bold text-sm text-on-surface-variant">Free</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Order Tray & Preview -->
+<div class="lg:col-span-5 relative">
+<!-- Sticky Container -->
+<div class="sticky top-8 flex flex-col gap-8">
+<!-- The "Order Tray" Component -->
+<div class="bg-surface-container-highest/80 backdrop-blur-xl rounded-[2rem] p-8 flex flex-col gap-8 shadow-[0_40px_80px_rgba(0,0,0,0.5)] ring-1 ring-white/5">
+<h2 class="font-headline text-2xl font-bold tracking-tight text-on-surface">Your Tray</h2>
+<!-- Items -->
+<div class="flex flex-col gap-6">
+<!-- Item 1 -->
+<div class="flex gap-4 items-center group">
+<div class="w-20 h-20 rounded-2xl bg-surface-container-lowest overflow-hidden relative shadow-[0_10px_20px_rgba(0,0,0,0.3)] shrink-0">
+<img alt="High-resolution cutout of a classic Margherita pizza with vibrant basil and blistered crust on dark background" class="w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-500" data-alt="High-resolution cutout of a classic Margherita pizza with vibrant basil and blistered crust on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2eMNq1MDwblb5LBq8Ugwwfdyd_hgh_D_YMe5wq7zu8FmUM3V1uPb7XkK9Qqch5qpgniBkvexZOCsG-NqMv5ZrLPyFXrjKCR4MyZukk6BlRt8tphVCsgxBWP0OqsWIrJ8TO_m_xqCt7FEVvH3ogdeAnLfpZo5MSfBbhf_TrhKCjuOtpng90aGb4xVXWYkbUxmcG5eGLBBeXyDKUmTxLXkGO9BHDSsFt8dY8zzKSk_v8ftZ04Bv6eMsCUjcJXDokoCHzBbiOm9Wlgw"/>
+</div>
+<div class="flex flex-col flex-1 justify-center">
+<div class="flex justify-between items-start">
+<h3 class="font-headline font-bold text-lg text-on-surface leading-tight">Margherita D.O.P.</h3>
+<span class="font-headline font-bold text-on-surface">$24</span>
+</div>
+<p class="font-label text-xs text-on-surface-variant mt-1">San Marzano, Bufala, Basil</p>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex gap-4 items-center group">
+<div class="w-20 h-20 rounded-2xl bg-surface-container-lowest overflow-hidden relative shadow-[0_10px_20px_rgba(0,0,0,0.3)] shrink-0">
+<img alt="Artisan Diavola pizza slice with spicy salami and chili oil glistening under warm lighting" class="w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-500" data-alt="Artisan Diavola pizza slice with spicy salami and chili oil glistening under warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-W4az51dSZa7e-jKgyum5dkUOYEiFlm1AceB_ywn8llibc6Yd9DBFxSEKfEZtKLX99vcZoxfDrMJEUQrYcQoF88ghzrlMYI88x6UFEWFRkbIgSj9LGlaNmO7hVGBxTmGOsexmzJhCHhtdSooPaMbQ5AjTJciMNKhWSt6poRmVYEl1nAXXdHHLyEboNTn4BeDltlAKnUyxvhr5WQf64W4wiV4_qQlhF7V7kE10lTxp4uHxv1Tk9YAX4WIwF0jhwCUg-I1IkFehS4A"/>
+</div>
+<div class="flex flex-col flex-1 justify-center">
+<div class="flex justify-between items-start">
+<h3 class="font-headline font-bold text-lg text-on-surface leading-tight">Inferno</h3>
+<span class="font-headline font-bold text-on-surface">$28</span>
+</div>
+<p class="font-label text-xs text-on-surface-variant mt-1">Spicy Nduja, Honey, Ricotta</p>
+</div>
+</div>
+</div>
+<!-- Totals -->
+<div class="flex flex-col gap-3 pt-6 mt-2 border-t border-outline-variant/20">
+<div class="flex justify-between items-center text-on-surface-variant font-label text-sm">
+<span>Subtotal</span>
+<span>$52.00</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant font-label text-sm">
+<span>Taxes &amp; Fees</span>
+<span>$5.20</span>
+</div>
+<div class="flex justify-between items-center pt-2 mt-2">
+<span class="font-headline text-lg font-bold text-on-surface">Total</span>
+<!-- Golden Crust Accent for premium value -->
+<span class="font-headline text-2xl font-black text-tertiary tracking-tight">$57.20</span>
+</div>
+</div>
+</div>
+<!-- Map Tracking Preview -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 flex flex-col gap-4 ring-1 ring-outline-variant/10 shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+<div class="flex items-center gap-2 px-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<span class="font-label text-xs uppercase tracking-widest text-on-surface font-bold">Live Tracking Ready</span>
+</div>
+<div class="h-40 w-full rounded-xl overflow-hidden relative isolate group">
+<img alt="Dark mode stylized aerial city map focusing on downtown streets with subtle amber glowing routes indicating delivery path" class="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-luminosity group-hover:opacity-70 group-hover:scale-105 transition-all duration-700" data-alt="Dark mode stylized aerial city map focusing on downtown streets with subtle amber glowing routes indicating delivery path" data-location="Naples, Italy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7SL04NEAjNyJljSU8FHOncKOgjGjc0aHBeX05sAJHtKCVxPD1jpcyhC1Kv1lU5qhzj_E1CvIOb2SiWrOzTuCGkBbKEJMRX4lrDb3lWgEumLVXdq0ZPZU0qfa4MzuV85AcopZNRkY17vMhTMi-6t13x8rcKmbf_oyIMlQ6DOe_n7ec0kqEvo4HB5iff4H6UFqqzOkWze9C5MvXsr8AS0e6C0nz86OXnmLmNbBuI8ypgC3xpo0s9hnaAfxVIZIh7cK-alDXzksB_f4"/>
+<!-- Map UI Overlays -->
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/80 to-transparent"></div>
+<div class="absolute bottom-3 left-3 bg-surface-container-highest/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-outline-variant/20 flex items-center gap-2 shadow-lg">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="font-headline text-xs font-bold text-on-surface">Oven to Door: ~30m</span>
+</div>
+</div>
+</div>
+<!-- Primary CTA Action -->
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl py-5 px-8 font-headline font-bold text-lg shadow-[0_15px_30px_rgba(196,30,58,0.15)] hover:shadow-[0_20px_40px_rgba(196,30,58,0.3)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 group">
+<span>Proceed to Payment</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+</body></html>
