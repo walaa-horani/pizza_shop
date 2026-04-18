@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import AuthButtons from './AuthButtons';
+import CartBadge from './CartBadge';
 
 export default function Nav() {
   return (
@@ -13,13 +15,9 @@ export default function Nav() {
           <Link className="text-[#E5E2E1]/70 font-medium hover:text-[#E5E2E1] transition-colors hover:bg-[#E5E2E1]/5 duration-300 px-3 py-2 rounded-lg" href="/">How it Works</Link>
           <Link className="text-[#E5E2E1]/70 font-medium hover:text-[#E5E2E1] transition-colors hover:bg-[#E5E2E1]/5 duration-300 px-3 py-2 rounded-lg" href="/">Offers</Link>
         </div>
-        <div className="flex items-center gap-6 text-[#FFB3B4]">
-          <Link href="/cart" className="scale-95 active:scale-90 transition-transform flex items-center justify-center p-2 rounded-full hover:bg-surface-bright/20">
-            <span className="material-symbols-outlined">shopping_cart</span>
-          </Link>
-          <button className="scale-95 active:scale-90 transition-transform flex items-center justify-center p-2 rounded-full hover:bg-surface-bright/20">
-            <span className="material-symbols-outlined">account_circle</span>
-          </button>
+        <div className="flex items-center gap-4 text-[#FFB3B4]">
+          <CartBadge />
+          <AuthButtons />
         </div>
       </div>
     </nav>
