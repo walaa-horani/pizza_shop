@@ -49,10 +49,11 @@ describe('summarize', () => {
     expect(s.discount).toBe(0);
     expect(s.total).toBe(0);
   });
-  it('floors total at zero', () => {
+  it('floors total at zero when discount exceeds subtotal + taxes', () => {
     const tinyItem: CartItem = { ...base, basePrice: 10 };
     const s = summarize([tinyItem], 'standard');
-    expect(s.total).toBeGreaterThanOrEqual(0);
+    // subtotal=10, taxes=1, delivery=0, discount=500 → raw=-489, floored to 0
+    expect(s.total).toBe(0);
   });
   it('charges no delivery fee for standard', () => {
     expect(summarize([base], 'standard').deliveryFee).toBe(0);

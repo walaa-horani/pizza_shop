@@ -35,7 +35,10 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'hearth-cart',
-      storage: createJSONStorage(() => (typeof window !== 'undefined' ? window.localStorage : (undefined as never))),
+      storage: createJSONStorage(() => {
+        if (typeof window === 'undefined') return undefined as unknown as Storage;
+        return window.localStorage;
+      }),
       partialize: (state) => ({ items: state.items }),
     },
   ),

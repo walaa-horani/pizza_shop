@@ -25,6 +25,8 @@ export type CartSummary = {
 
 export function summarize(items: CartItem[], speed: DeliverySpeed): CartSummary {
   const subtotal = items.reduce((acc, i) => acc + lineTotal(i), 0);
+  // v1: tax is computed on the pre-discount subtotal per spec §6. Revisit
+  // ordering (apply discount before tax) when we review receipt-accuracy.
   const taxes = Math.round(subtotal * TAX_RATE);
   const deliveryFee = speed === 'express' ? DELIVERY_EXPRESS_FEE : 0;
   const discount = subtotal > 0 ? DISCOUNT_FLAT : 0;
