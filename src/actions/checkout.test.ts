@@ -77,6 +77,16 @@ describe('checkout server action', () => {
     expect(r.ok).toBe(false);
   });
 
+  it('returns formError if any product is no longer available', async () => {
+    sanityFetch.mockResolvedValueOnce(null);
+    const { checkout } = await import('./checkout');
+    const r = await checkout({ form: validForm, items: [sampleItem] });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.formError).toMatch(/no longer available/i);
+    expect(sanityCreate).not.toHaveBeenCalled();
+    expect(stripeCreate).not.toHaveBeenCalled();
+  });
+
   it('creates Sanity order with pending status BEFORE Stripe call', async () => {
     const callOrder: string[] = [];
     sanityCreate.mockImplementationOnce(async (doc: any) => {

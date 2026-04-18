@@ -1,6 +1,5 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { checkoutPayloadSchema, type CheckoutPayload } from '@/lib/validation/checkout';
 import { getSanityWriteClient } from '@/sanity/serverClient';
@@ -141,33 +140,46 @@ export async function checkout(rawInput: unknown): Promise<ActionResult> {
   });
 
   const stripe = getStripe();
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    customer_email: buyerEmail,
-    line_items: [
-      ...pricedNonNull.map((p) => ({
-        price_data: {
-          currency: 'usd',
-          product_data: { name: p.product.title, images: p.product.imageUrl ? [p.product.imageUrl] : [] },
-          unit_amount: p.unit,
-        },
-        quantity: p.item.quantity,
-      })),
-      ...(summary.taxes > 0
-        ? [{ price_data: { currency: 'usd', product_data: { name: 'Taxes & Fees' }, unit_amount: summary.taxes }, quantity: 1 }]
-        : []),
-      ...(summary.deliveryFee > 0
-        ? [{ price_data: { currency: 'usd', product_data: { name: 'Express Delivery' }, unit_amount: summary.deliveryFee }, quantity: 1 }]
-        : []),
-    ],
-    metadata: { sanityOrderId: order._id, discount: String(summary.discount) },
-    success_url: `${publicEnv.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${publicEnv.NEXT_PUBLIC_APP_URL}/checkout`,
-  });
+  let session: Awaited<ReturnType<typeof stripe.checkout.sessions.create>>;
+  try {
+    session = await stripe.checkout.sessions.create(
+      {
+        mode: 'payment',
+        customer_email: buyerEmail,
+        line_items: [
+          ...pricedNonNull.map((p) => ({
+            price_data: {
+              currency: 'usd',
+              product_data: { name: p.product.title, images: p.product.imageUrl ? [p.product.imageUrl] : [] },
+              unit_amount: p.unit,
+            },
+            quantity: p.item.quantity,
+          })),
+          ...(summary.taxes > 0
+            ? [{ price_data: { currency: 'usd', product_data: { name: 'Taxes & Fees' }, unit_amount: summary.taxes }, quantity: 1 }]
+            : []),
+          ...(summary.deliveryFee > 0
+            ? [{ price_data: { currency: 'usd', product_data: { name: 'Express Delivery' }, unit_amount: summary.deliveryFee }, quantity: 1 }]
+            : []),
+        ],
+        metadata: { sanityOrderId: order._id, discount: String(summary.discount) },
+        success_url: `${publicEnv.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${publicEnv.NEXT_PUBLIC_APP_URL}/checkout`,
+      },
+      { idempotencyKey: `order-${order._id}` },
+    );
+  } catch (err) {
+    await write
+      .patch(order._id)
+      .set({ status: 'failed' })
+      .commit()
+      .catch(() => {
+        // Suppress secondary failure: primary error is more useful to surface.
+      });
+    return { ok: false, formError: 'Payment session could not be created. Please try again.' };
+  }
 
   await write.patch(order._id).set({ stripeSessionId: session.id }).commit();
-
-  revalidatePath('/checkout');
   if (!session.url) return { ok: false, formError: 'Stripe session missing URL' };
   return { ok: true, url: session.url };
 }
