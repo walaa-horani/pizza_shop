@@ -60,6 +60,9 @@ beforeEach(() => {
     basePrice: 1800,
     imageUrl: 'https://x',
     isActive: true,
+    sizes: [{ name: 'Medium', priceModifier: 0 }],
+    crustOptions: [{ name: 'Neapolitan', priceModifier: 0 }],
+    availableToppings: [],
   });
 });
 

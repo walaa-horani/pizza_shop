@@ -59,5 +59,15 @@ export async function POST(req: Request): Promise<Response> {
     }
   }
 
+  if (event.type === 'user.deleted') {
+    const existing = await write.fetch(
+      `*[_type == "user" && clerkUserId == $id][0]._id`,
+      { id: event.data.id },
+    );
+    if (existing) {
+      await write.patch(existing).set({ email: '[deleted]' }).commit();
+    }
+  }
+
   return NextResponse.json({ received: true });
 }

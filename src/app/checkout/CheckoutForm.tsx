@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useCartStore } from '@/lib/cart/store';
 import { summarize } from '@/lib/cart/pricing';
@@ -10,6 +10,8 @@ type Errors = Record<string, string[] | undefined>;
 
 export default function CheckoutForm() {
   const items = useCartStore((s) => s.items);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [deliverySpeed, setDeliverySpeed] = useState<'express' | 'standard'>('express');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -81,16 +83,22 @@ export default function CheckoutForm() {
             <h2 className="font-headline text-2xl font-bold">Your Tray</h2>
             <Link href="/cart" className="text-sm font-label text-primary uppercase tracking-widest">Edit</Link>
           </div>
-          {items.map((item) => (
-            <div key={item.lineId} className="flex gap-4 items-center">
-              <img src={item.imageUrl} alt={item.productTitle} className="w-20 h-20 rounded-2xl object-cover" />
-              <div className="flex-1">
-                <h3 className="font-headline font-bold text-lg">{item.productTitle} × {item.quantity}</h3>
-                <p className="font-label text-xs text-on-surface-variant">{item.size.name} · {item.crust.name}</p>
+          {!mounted ? (
+            <p className="font-label text-on-surface-variant text-sm">Loading your cart…</p>
+          ) : items.length === 0 ? (
+            <p className="font-label text-on-surface-variant text-sm">Cart is empty. <Link href="/menu" className="text-primary">Browse menu</Link>.</p>
+          ) : (
+            items.map((item) => (
+              <div key={item.lineId} className="flex gap-4 items-center">
+                <img src={item.imageUrl} alt={item.productTitle} className="w-20 h-20 rounded-2xl object-cover" />
+                <div className="flex-1">
+                  <h3 className="font-headline font-bold text-lg">{item.productTitle} × {item.quantity}</h3>
+                  <p className="font-label text-xs text-on-surface-variant">{item.size.name} · {item.crust.name}</p>
+                </div>
+                <span className="font-headline font-bold">${((item.basePrice + item.size.priceModifier + item.crust.priceModifier + item.toppings.reduce((a, t) => a + t.price, 0)) * item.quantity / 100).toFixed(2)}</span>
               </div>
-              <span className="font-headline font-bold">${((item.basePrice + item.size.priceModifier + item.crust.priceModifier + item.toppings.reduce((a, t) => a + t.price, 0)) * item.quantity / 100).toFixed(2)}</span>
-            </div>
-          ))}
+            ))
+          )}
           <div className="flex flex-col gap-3 pt-6 border-t border-outline-variant/20">
             <Row label="Subtotal" value={summary.subtotal} />
             <Row label="Taxes &amp; Fees" value={summary.taxes} />
@@ -104,7 +112,7 @@ export default function CheckoutForm() {
           {formError && <p className="text-error text-sm">{formError}</p>}
           <button
             type="submit"
-            disabled={submitting || items.length === 0}
+            disabled={submitting || !mounted || items.length === 0}
             className="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-[1.5rem] py-5 px-8 font-headline font-bold text-lg disabled:opacity-50"
           >
             {submitting ? 'Redirecting…' : 'Proceed to Payment'}

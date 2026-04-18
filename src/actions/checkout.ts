@@ -46,23 +46,49 @@ export async function checkout(rawInput: unknown): Promise<ActionResult> {
     payload.items.map(async (item) => {
       const product = await write.fetch(
         `*[_type == "product" && _id == $id && isActive == true][0] {
-          _id, title, "slug": slug.current, basePrice, "imageUrl": image.asset->url
+          _id, title, "slug": slug.current, basePrice, "imageUrl": image.asset->url,
+          sizes,
+          crustOptions,
+          "availableToppings": availableToppings[]-> { "slug": slug.current, title, price }
         }`,
         { id: item.productId },
       );
       if (!product) {
         return null;
       }
+      // Reconcile every chosen option against the current product document.
+      const serverSize = (product.sizes as Array<{ name: string; priceModifier: number }> | undefined)
+        ?.find((s) => s.name === item.size.name);
+      if (!serverSize) return null;
+
+      const serverCrust = item.crust.name
+        ? (product.crustOptions as Array<{ name: string; priceModifier: number }> | undefined)
+            ?.find((c) => c.name === item.crust.name)
+        : undefined;
+      // Crust is optional on the product but if the item claims one, it must match.
+      if (item.crust.name && !serverCrust) return null;
+
+      const serverToppings: Array<{ slug: string; title: string; price: number }> = [];
+      for (const chosen of item.toppings) {
+        const match = (product.availableToppings as Array<{ slug: string; title: string; price: number }>)
+          ?.find((t) => t.slug === chosen.slug);
+        if (!match) return null;
+        serverToppings.push(match);
+      }
+
       const unit =
         product.basePrice +
-        item.size.priceModifier +
-        item.crust.priceModifier +
-        item.toppings.reduce((acc, t) => acc + t.price, 0);
+        serverSize.priceModifier +
+        (serverCrust?.priceModifier ?? 0) +
+        serverToppings.reduce((acc, t) => acc + t.price, 0);
       return {
         item,
         product,
         unit,
         lineTotal: unit * item.quantity,
+        serverSize,
+        serverCrust,
+        serverToppings,
       };
     }),
   );
@@ -115,9 +141,9 @@ export async function checkout(rawInput: unknown): Promise<ActionResult> {
         imageUrl: p.product.imageUrl,
         basePrice: p.product.basePrice,
       },
-      size: p.item.size,
-      crust: p.item.crust,
-      toppings: p.item.toppings.map((t, ti) => ({ _key: `t-${ti}`, _type: 'toppingSnapshot', ...t })),
+      size: p.serverSize,
+      crust: p.serverCrust ?? { name: 'Standard', priceModifier: 0 },
+      toppings: p.serverToppings.map((t, ti) => ({ _key: `t-${ti}`, _type: 'toppingSnapshot', ...t })),
       specialInstructions: p.item.specialInstructions,
       quantity: p.item.quantity,
       lineTotal: p.lineTotal,
@@ -140,6 +166,31 @@ export async function checkout(rawInput: unknown): Promise<ActionResult> {
   });
 
   const stripe = getStripe();
+  // Distribute flat discount across product lines (not taxes/delivery) so the
+  // Stripe total matches summary.total exactly. Integer-cents, remainder on last line.
+  const productLines = pricedNonNull.map((p) => ({
+    name: p.product.title,
+    images: p.product.imageUrl ? [p.product.imageUrl] : [],
+    unit_amount: p.unit,
+    quantity: p.item.quantity,
+    lineSubtotal: p.unit * p.item.quantity,
+  }));
+  const productsSubtotal = productLines.reduce((a, l) => a + l.lineSubtotal, 0);
+  let remainingDiscount = summary.discount;
+  const adjustedLines = productLines.map((l, idx) => {
+    const isLast = idx === productLines.length - 1;
+    const share = isLast
+      ? remainingDiscount
+      : productsSubtotal > 0
+        ? Math.floor((summary.discount * l.lineSubtotal) / productsSubtotal)
+        : 0;
+    remainingDiscount -= share;
+    // Reduce unit_amount by the per-unit share; guard floor at 0 (cannot be negative on Stripe).
+    const perUnitShare = l.quantity > 0 ? Math.floor(share / l.quantity) : 0;
+    const adjustedUnit = Math.max(0, l.unit_amount - perUnitShare);
+    return { ...l, unit_amount: adjustedUnit };
+  });
+
   let session: Awaited<ReturnType<typeof stripe.checkout.sessions.create>>;
   try {
     session = await stripe.checkout.sessions.create(
@@ -147,13 +198,13 @@ export async function checkout(rawInput: unknown): Promise<ActionResult> {
         mode: 'payment',
         customer_email: buyerEmail,
         line_items: [
-          ...pricedNonNull.map((p) => ({
+          ...adjustedLines.map((l) => ({
             price_data: {
               currency: 'usd',
-              product_data: { name: p.product.title, images: p.product.imageUrl ? [p.product.imageUrl] : [] },
-              unit_amount: p.unit,
+              product_data: { name: l.name, images: l.images },
+              unit_amount: l.unit_amount,
             },
-            quantity: p.item.quantity,
+            quantity: l.quantity,
           })),
           ...(summary.taxes > 0
             ? [{ price_data: { currency: 'usd', product_data: { name: 'Taxes & Fees' }, unit_amount: summary.taxes }, quantity: 1 }]
@@ -163,6 +214,7 @@ export async function checkout(rawInput: unknown): Promise<ActionResult> {
             : []),
         ],
         metadata: { sanityOrderId: order._id, discount: String(summary.discount) },
+        payment_intent_data: { metadata: { sanityOrderId: order._id } },
         success_url: `${publicEnv.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${publicEnv.NEXT_PUBLIC_APP_URL}/checkout`,
       },
