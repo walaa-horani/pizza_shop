@@ -21,6 +21,53 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return out;
 }
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function safeImageUrl(url: string): string {
+  return /^https?:\/\//i.test(url) ? url : '';
+}
+
+function renderEmailShell(params: {
+  preheader: string;
+  innerHtml: string;
+  footerUrl: string;
+}): string {
+  const { preheader, innerHtml, footerUrl } = params;
+  return `
+<!doctype html>
+<html>
+  <body style="margin:0;padding:0;background:#fff7ed;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#1f2937;">
+    <span style="display:none !important;visibility:hidden;opacity:0;color:transparent;height:0;width:0;overflow:hidden;">${escapeHtml(preheader)}</span>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(217,72,15,0.08);">
+            <tr>
+              <td style="padding:20px 28px;background:#d9480f;color:#fff;font-weight:700;font-size:18px;letter-spacing:0.4px;">
+                PIZZA&nbsp;SHOP
+              </td>
+            </tr>
+            ${innerHtml}
+            <tr>
+              <td style="padding:18px 28px;background:#fff7ed;color:#6b7280;font-size:12px;text-align:center;">
+                Pizza Shop · ${escapeHtml(footerUrl)}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
 export function formatCents(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
 }
@@ -98,7 +145,7 @@ export async function sendNewProductEmail(params: {
     try {
       await client.batch.send(payload);
     } catch (err) {
-      console.error('sendNewProductEmail batch failed', err);
+      console.error('sendNewProductEmail batch failed', { productId: product._id, err });
     }
   }
 }
@@ -116,32 +163,20 @@ function newProductHtml(params: {
   name?: string | null;
 }): string {
   const { product, productUrl, preheader, name } = params;
-  const greeting = name ? `Hi ${name},` : 'Hi there,';
-  return `
-<!doctype html>
-<html>
-  <body style="margin:0;padding:0;background:#fff7ed;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#1f2937;">
-    <span style="display:none !important;visibility:hidden;opacity:0;color:transparent;height:0;width:0;overflow:hidden;">${preheader}</span>
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed;">
-      <tr>
-        <td align="center" style="padding:32px 16px;">
-          <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(217,72,15,0.08);">
-            <tr>
-              <td style="padding:20px 28px;background:#d9480f;color:#fff;font-weight:700;font-size:18px;letter-spacing:0.4px;">
-                PIZZA&nbsp;SHOP
-              </td>
-            </tr>
+  const greeting = name ? `Hi ${escapeHtml(name)},` : 'Hi there,';
+  const footerUrl = productUrl.replace(/\/product\/.*$/, '');
+  const innerHtml = `
             <tr>
               <td style="padding:0;">
-                <img src="${product.imageUrl}" alt="${product.title}" width="600" style="display:block;width:100%;height:auto;border:0;">
+                <img src="${safeImageUrl(product.imageUrl)}" alt="${escapeHtml(product.title)}" width="600" style="display:block;width:100%;height:auto;border:0;">
               </td>
             </tr>
             <tr>
               <td style="padding:28px 28px 8px 28px;">
                 <div style="text-transform:uppercase;letter-spacing:2px;color:#d9480f;font-size:12px;font-weight:700;margin-bottom:10px;">NEW ON THE MENU</div>
-                <h1 style="margin:0 0 12px 0;font-size:28px;line-height:1.2;color:#1f2937;">${product.title}</h1>
+                <h1 style="margin:0 0 12px 0;font-size:28px;line-height:1.2;color:#1f2937;">${escapeHtml(product.title)}</h1>
                 <p style="margin:0 0 10px 0;font-size:14px;color:#6b7280;">${greeting}</p>
-                <p style="margin:0 0 20px 0;font-size:16px;line-height:1.55;color:#1f2937;">${product.description}</p>
+                <p style="margin:0 0 20px 0;font-size:16px;line-height:1.55;color:#1f2937;">${escapeHtml(product.description)}</p>
               </td>
             </tr>
             <tr>
@@ -153,16 +188,6 @@ function newProductHtml(params: {
               <td align="center" style="padding:6px 28px 28px 28px;font-size:13px;color:#6b7280;">
                 From ${formatCents(product.basePrice)}
               </td>
-            </tr>
-            <tr>
-              <td style="padding:18px 28px;background:#fff7ed;color:#6b7280;font-size:12px;text-align:center;">
-                Pizza Shop · ${productUrl.replace(/\/product\/.*$/, '')}
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>`;
+            </tr>`;
+  return renderEmailShell({ preheader, innerHtml, footerUrl });
 }

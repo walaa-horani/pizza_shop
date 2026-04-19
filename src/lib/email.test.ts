@@ -74,10 +74,12 @@ describe('sendNewProductEmail', () => {
     const { sendNewProductEmail } = await import('./email');
     await sendNewProductEmail({ product: sampleProduct, recipients });
 
-    const payload = batchSend.mock.calls[0][0] as Array<{ from: string; to: string; subject: string; html: string }>;
+    const payload = batchSend.mock.calls[0][0] as Array<{ from: string; to: string; subject: string; html: string; text: string }>;
     expect(payload).toHaveLength(2);
     expect(payload[0].from).toBe('shop@pizza.test');
     expect(payload[0].to).toBe('a@t.test');
+    expect(payload[1].to).toBe('b@t.test');
+    expect(payload[0].text).toContain('Order now:');
     expect(payload[0].subject).toContain('Margherita');
     expect(payload[0].html).toContain('NEW ON THE MENU');
     expect(payload[0].html).toContain('https://cdn.test/margherita.jpg');
@@ -105,5 +107,30 @@ describe('sendNewProductEmail', () => {
     const { sendNewProductEmail } = await import('./email');
     await sendNewProductEmail({ product: sampleProduct, recipients: [] });
     expect(batchSend).not.toHaveBeenCalled();
+  });
+
+  it('escapes HTML-sensitive characters in product fields', async () => {
+    batchSend.mockResolvedValue({ data: {}, error: null });
+    const { sendNewProductEmail } = await import('./email');
+    await sendNewProductEmail({
+      product: {
+        _id: 'prod-x',
+        title: 'Evil <img src=x>',
+        slug: 'evil',
+        description: 'A & B',
+        imageUrl: 'javascript:alert(1)',
+        basePrice: 1000,
+      },
+      recipients: [{ email: 'a@t.test' }],
+    });
+    const payload = batchSend.mock.calls[0][0] as Array<{ html: string }>;
+    // Raw <img src=x> must NOT appear (would be injected markup)
+    expect(payload[0].html).not.toContain('<img src=x>');
+    // Escaped form SHOULD appear
+    expect(payload[0].html).toContain('Evil &lt;img src=x&gt;');
+    // Ampersand escaped
+    expect(payload[0].html).toContain('A &amp; B');
+    // javascript: URL stripped from image src
+    expect(payload[0].html).not.toContain('javascript:alert(1)');
   });
 });
