@@ -81,5 +81,27 @@ export const productSchema = defineType({
     }),
     defineField({ name: 'featured', type: 'boolean', initialValue: false }),
     defineField({ name: 'isActive', type: 'boolean', initialValue: true }),
+    defineField({
+      name: 'discountPercent',
+      title: 'Discount %',
+      description: 'Percentage off the base price. 0 means no discount.',
+      type: 'number',
+      initialValue: 0,
+      validation: (r) => r.min(0).max(100).integer(),
+    }),
+    defineField({
+      name: 'announcedAt',
+      title: 'Announced at',
+      description: 'Set automatically when the new-product announcement email is sent. Do not edit.',
+      type: 'datetime',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'lastAnnouncedDiscountPercent',
+      title: 'Last announced discount %',
+      description: 'Set automatically when a discount announcement email is sent. Do not edit.',
+      type: 'number',
+      readOnly: true,
+    }),
   ],
 });
