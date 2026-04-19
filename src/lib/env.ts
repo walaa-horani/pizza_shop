@@ -18,6 +18,10 @@ const serverSchema = publicSchema.extend({
   RESEND_API_KEY: z.string().min(1),
   RESEND_FROM_EMAIL: z.string().email(),
   SANITY_WEBHOOK_SECRET: z.string().min(1),
+  // Optional: when both are set, rate limiting is enforced via Upstash Redis.
+  // When absent, limiter code no-ops and logs a warning once.
+  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().min(1).optional(),
 });
 
 export const publicEnv = publicSchema.parse({

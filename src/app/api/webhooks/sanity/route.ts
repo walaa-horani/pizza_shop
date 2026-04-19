@@ -4,6 +4,7 @@ import { getSanityWriteClient } from '@/sanity/serverClient';
 import { getServerEnv } from '@/lib/env';
 import { getAllUserEmails } from '@/sanity/queries';
 import { sendNewProductEmail, sendDiscountEmail } from '@/lib/email';
+import { readBodyWithLimit, BodyTooLargeError } from '@/lib/http/readBody';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -28,7 +29,15 @@ export async function POST(req: Request): Promise<Response> {
     return NextResponse.json({ error: 'missing signature' }, { status: 401 });
   }
 
-  const rawBody = await req.text();
+  let rawBody: string;
+  try {
+    rawBody = await readBodyWithLimit(req);
+  } catch (err) {
+    if (err instanceof BodyTooLargeError) {
+      return NextResponse.json({ error: 'payload too large' }, { status: 413 });
+    }
+    throw err;
+  }
   const { SANITY_WEBHOOK_SECRET } = getServerEnv();
 
   const ok = await isValidSignature(rawBody, signature, SANITY_WEBHOOK_SECRET);

@@ -16,6 +16,8 @@
     "@sanity/image-url": "^2.1.1",
     "@sanity/vision": "^5.21.0",
     "@stripe/stripe-js": "^9.2.0",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.37.0",
     "lucide-react": "^1.8.0",
     "next": "16.2.4",
     "next-sanity": "^12.3.0",

@@ -12,10 +12,11 @@ vi.mock('@/lib/env', () => ({
 }));
 
 const batchSend = vi.fn();
+const emailSend = vi.fn();
 vi.mock('resend', () => ({
   Resend: vi.fn().mockImplementation(function (this: unknown) {
     return {
-      emails: { send: vi.fn() },
+      emails: { send: emailSend },
       batch: { send: batchSend },
     };
   }),
@@ -23,6 +24,7 @@ vi.mock('resend', () => ({
 
 beforeEach(() => {
   batchSend.mockReset();
+  emailSend.mockReset();
 });
 
 describe('formatCents', () => {
@@ -132,6 +134,29 @@ describe('sendNewProductEmail', () => {
     expect(payload[0].html).toContain('A &amp; B');
     // javascript: URL stripped from image src
     expect(payload[0].html).not.toContain('javascript:alert(1)');
+  });
+});
+
+describe('sendWelcomeEmail', () => {
+  it('escapes HTML in the recipient name to prevent injection', async () => {
+    emailSend.mockResolvedValue({ data: {}, error: null });
+    const { sendWelcomeEmail } = await import('./email');
+    await sendWelcomeEmail({ to: 'a@t.test', name: '<img src=x onerror=alert(1)>' });
+
+    expect(emailSend).toHaveBeenCalledTimes(1);
+    const call = emailSend.mock.calls[0][0] as { html: string; text: string };
+    expect(call.html).not.toContain('<img src=x onerror=alert(1)>');
+    expect(call.html).toContain('&lt;img src=x onerror=alert(1)&gt;');
+    // Plain-text body is unaffected by HTML escaping
+    expect(call.text).toContain('<img src=x onerror=alert(1)>');
+  });
+
+  it('uses generic greeting when no name is provided', async () => {
+    emailSend.mockResolvedValue({ data: {}, error: null });
+    const { sendWelcomeEmail } = await import('./email');
+    await sendWelcomeEmail({ to: 'a@t.test' });
+    const call = emailSend.mock.calls[0][0] as { html: string };
+    expect(call.html).toContain('Hi there,');
   });
 });
 
