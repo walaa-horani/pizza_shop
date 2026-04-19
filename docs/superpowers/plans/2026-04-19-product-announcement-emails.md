@@ -363,7 +363,7 @@ export type EmailProduct = {
   basePrice: number;
 };
 
-export type EmailRecipient = { email: string; name?: string };
+export type EmailRecipient = { email: string; name?: string | null };
 
 const BATCH_SIZE = 100;
 
