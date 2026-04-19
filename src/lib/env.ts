@@ -17,6 +17,7 @@ const serverSchema = publicSchema.extend({
   STRIPE_WEBHOOK_SECRET: z.string().min(1),
   RESEND_API_KEY: z.string().min(1),
   RESEND_FROM_EMAIL: z.string().email(),
+  SANITY_WEBHOOK_SECRET: z.string().min(1),
 });
 
 export const publicEnv = publicSchema.parse({
