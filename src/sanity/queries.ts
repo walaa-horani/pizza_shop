@@ -1,7 +1,7 @@
 import { sanityClient } from './client';
 import type { Category, ProductDetail, ProductListItem } from './types';
 
-export type UserEmailRecipient = { email: string; name?: string };
+export type UserEmailRecipient = { email: string; name: string | null };
 
 const LIST_PROJECTION = `
   _id,
