@@ -209,10 +209,14 @@ vi.mock('@/lib/env', () => ({
 
 const batchSend = vi.fn();
 vi.mock('resend', () => ({
-  Resend: vi.fn().mockImplementation(() => ({
-    emails: { send: vi.fn() },
-    batch: { send: batchSend },
-  })),
+  // Regular function expression (not arrow) so the mock is constructible
+  // via `new Resend(...)` in email.ts.
+  Resend: vi.fn().mockImplementation(function (this: unknown) {
+    return {
+      emails: { send: vi.fn() },
+      batch: { send: batchSend },
+    };
+  }),
 }));
 
 beforeEach(() => {
