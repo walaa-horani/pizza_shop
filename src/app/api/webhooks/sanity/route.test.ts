@@ -153,11 +153,36 @@ describe('POST /api/webhooks/sanity', () => {
     expect(patch).not.toHaveBeenCalled();
   });
 
-  it('returns 500 when the Sanity patch fails', async () => {
+  it('returns 500 and does NOT send email when the Sanity patch fails', async () => {
     isValidSignature.mockResolvedValue(true);
     patchCommit.mockRejectedValueOnce(new Error('sanity down'));
     const { POST } = await import('./route');
     const res = await POST(req(baseProduct));
     expect(res.status).toBe(500);
+    expect(sendNewProductEmail).not.toHaveBeenCalled();
+    expect(sendDiscountEmail).not.toHaveBeenCalled();
+  });
+
+  it('400 on invalid JSON body', async () => {
+    isValidSignature.mockResolvedValue(true);
+    const r = new Request('http://x/api/webhooks/sanity', {
+      method: 'POST',
+      body: '{not-json',
+      headers: { 'sanity-webhook-signature': 'sig' },
+    });
+    const { POST } = await import('./route');
+    const res = await POST(r);
+    expect(res.status).toBe(400);
+  });
+
+  it('noop when a required product field is missing', async () => {
+    isValidSignature.mockResolvedValue(true);
+    const { POST } = await import('./route');
+    const res = await POST(
+      req({ ...baseProduct, imageUrl: undefined }),
+    );
+    expect(res.status).toBe(200);
+    expect(sendNewProductEmail).not.toHaveBeenCalled();
+    expect(patch).not.toHaveBeenCalled();
   });
 });

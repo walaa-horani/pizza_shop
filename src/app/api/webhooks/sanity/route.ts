@@ -47,6 +47,13 @@ export async function POST(req: Request): Promise<Response> {
     return NextResponse.json({ received: true, action: 'noop' });
   }
 
+  // Reject payloads that are missing fields the templates depend on.
+  // Sanity's schema usually enforces these at publish time, but guarding
+  // here prevents broken-on-arrival blasts if a draft is published early.
+  if (!payload.title || !payload.slug || !payload.description || !payload.imageUrl || typeof payload.basePrice !== 'number') {
+    return NextResponse.json({ received: true, action: 'noop' });
+  }
+
   const product = {
     _id: payload._id,
     title: payload.title,
@@ -62,22 +69,26 @@ export async function POST(req: Request): Promise<Response> {
 
   try {
     if (!announcedAt) {
-      const recipients = await getAllUserEmails();
-      await sendNewProductEmail({ product, recipients });
+      // Claim the send by stamping announcedAt FIRST. If the stamp fails,
+      // we 500 and Sanity retries — safe because no email has gone out yet.
+      // If emails fail after stamping, we log and swallow per-chunk inside
+      // the sender; a retry will hit the `announcedAt` branch as no-op.
       await getSanityWriteClient()
         .patch(payload._id)
         .set({ announcedAt: new Date().toISOString() })
         .commit();
+      const recipients = await getAllUserEmails();
+      await sendNewProductEmail({ product, recipients });
       return NextResponse.json({ received: true, action: 'new' });
     }
 
     if (discountPercent > 0 && discountPercent !== lastAnnounced) {
-      const recipients = await getAllUserEmails();
-      await sendDiscountEmail({ product, discountPercent, recipients });
       await getSanityWriteClient()
         .patch(payload._id)
         .set({ lastAnnouncedDiscountPercent: discountPercent })
         .commit();
+      const recipients = await getAllUserEmails();
+      await sendDiscountEmail({ product, discountPercent, recipients });
       return NextResponse.json({ received: true, action: 'discount' });
     }
 
