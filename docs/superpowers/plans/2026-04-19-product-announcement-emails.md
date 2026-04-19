@@ -194,6 +194,10 @@ Create `src/lib/email.test.ts` with:
 ```ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+// `email.ts` imports `server-only`, which throws outside RSC. Stub it
+// so the module loads under jsdom.
+vi.mock('server-only', () => ({}));
+
 vi.mock('@/lib/env', () => ({
   getServerEnv: () => ({
     RESEND_API_KEY: 'key',
