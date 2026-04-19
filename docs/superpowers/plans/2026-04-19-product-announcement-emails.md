@@ -1035,6 +1035,33 @@ In your hosting provider (Vercel): Settings → Environment Variables → add `S
 
 Merge the feature branch, deploy to production. Confirm the deploy succeeds and `/api/webhooks/sanity` returns 401 on a curl without signature (sanity check that the route exists).
 
+- [ ] **Step 4b: Backfill `announcedAt` on pre-existing products**
+
+Before creating the webhook, stamp every existing product as already announced. Otherwise the next time anyone edits a legacy product, the webhook will fire "new product" emails for something the users already know about.
+
+In the Sanity Studio Vision tool (or via `npx sanity exec`), run this mutation once against the production dataset:
+
+```groq
+// Vision query — preview the products that will be updated
+*[_type == "product" && !defined(announcedAt)]{ _id, title }
+```
+
+Then in a Node script (or Sanity CLI `sanity documents`) patch each one:
+
+```bash
+# From the repo root, using an .env.local with SANITY_API_WRITE_TOKEN
+npx tsx -e "
+import { createClient } from 'next-sanity';
+import { projectId, dataset, apiVersion } from './src/sanity/env';
+const c = createClient({ projectId, dataset, apiVersion, useCdn: false, token: process.env.SANITY_API_WRITE_TOKEN });
+const ids = await c.fetch('*[_type == \"product\" && !defined(announcedAt)]._id');
+await Promise.all(ids.map(id => c.patch(id).set({ announcedAt: new Date().toISOString() }).commit()));
+console.log('Backfilled', ids.length, 'products');
+"
+```
+
+Expected: logs the number of legacy products touched. Re-running prints `Backfilled 0`.
+
 - [ ] **Step 5: Create the webhook in Sanity**
 
 In the Sanity management console (https://www.sanity.io/manage):
