@@ -191,3 +191,113 @@ function newProductHtml(params: {
             </tr>`;
   return renderEmailShell({ preheader, innerHtml, footerUrl });
 }
+
+export async function sendDiscountEmail(params: {
+  product: EmailProduct;
+  discountPercent: number;
+  recipients: EmailRecipient[];
+}): Promise<void> {
+  const { product, discountPercent, recipients } = params;
+  if (recipients.length === 0) return;
+
+  const { RESEND_FROM_EMAIL, NEXT_PUBLIC_APP_URL } = getServerEnv();
+  const client = getResend();
+  const productUrl = `${NEXT_PUBLIC_APP_URL}/product/${product.slug}`;
+  const subject = `${discountPercent}% OFF ${product.title} — limited time`;
+  const preheader = `Save ${discountPercent}% on ${product.title} today.`;
+  const discountedCents = applyDiscount(product.basePrice, discountPercent);
+
+  for (const group of chunk(recipients, BATCH_SIZE)) {
+    const payload = group.map((r) => ({
+      from: RESEND_FROM_EMAIL,
+      to: r.email,
+      subject,
+      html: discountHtml({
+        product,
+        productUrl,
+        preheader,
+        discountPercent,
+        discountedCents,
+        name: r.name,
+      }),
+      text: discountText({
+        product,
+        productUrl,
+        discountPercent,
+        discountedCents,
+        name: r.name,
+      }),
+    }));
+    try {
+      await client.batch.send(payload);
+    } catch (err) {
+      console.error('sendDiscountEmail batch failed', { productId: product._id, err });
+    }
+  }
+}
+
+function discountText(params: {
+  product: EmailProduct;
+  productUrl: string;
+  discountPercent: number;
+  discountedCents: number;
+  name?: string | null;
+}): string {
+  const { product, productUrl, discountPercent, discountedCents, name } = params;
+  const greeting = name ? `Hi ${name},` : 'Hi,';
+  return `${greeting}\n\n${discountPercent}% OFF ${product.title} — now ${formatCents(discountedCents)} (was ${formatCents(product.basePrice)}).\n\n${product.description}\n\nGrab the deal: ${productUrl}\n\nLimited-time offer.`;
+}
+
+function discountHtml(params: {
+  product: EmailProduct;
+  productUrl: string;
+  preheader: string;
+  discountPercent: number;
+  discountedCents: number;
+  name?: string | null;
+}): string {
+  const { product, productUrl, preheader, discountPercent, discountedCents, name } = params;
+  const greeting = name ? `Hi ${escapeHtml(name)},` : 'Hi there,';
+  const footerUrl = productUrl.replace(/\/product\/.*$/, '');
+  const innerHtml = `
+            <tr>
+              <td style="padding:0;">
+                <img src="${safeImageUrl(product.imageUrl)}" alt="${escapeHtml(product.title)}" width="600" style="display:block;width:100%;height:auto;border:0;">
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:20px 28px 0 28px;">
+                <div style="display:inline-block;padding:10px 22px;background:#d9480f;color:#ffffff;font-weight:800;font-size:22px;letter-spacing:1px;border-radius:999px;">
+                  ${discountPercent}% OFF
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:18px 28px 6px 28px;text-align:center;">
+                <h1 style="margin:0;font-size:26px;line-height:1.2;color:#1f2937;">${escapeHtml(product.title)}</h1>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:6px 28px 10px 28px;">
+                <span style="font-size:16px;color:#6b7280;text-decoration:line-through;margin-right:10px;">${formatCents(product.basePrice)}</span>
+                <span style="font-size:28px;font-weight:800;color:#d9480f;">${formatCents(discountedCents)}</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 28px 0 28px;">
+                <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;">${greeting}</p>
+                <p style="margin:0 0 20px 0;font-size:16px;line-height:1.55;color:#1f2937;">${escapeHtml(product.description)}</p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:4px 28px 6px 28px;">
+                <a href="${productUrl}" style="display:inline-block;padding:14px 28px;background:#d9480f;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:700;font-size:16px;">Grab the deal</a>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:4px 28px 24px 28px;font-size:13px;color:#6b7280;">
+                Limited-time offer
+              </td>
+            </tr>`;
+  return renderEmailShell({ preheader, innerHtml, footerUrl });
+}
