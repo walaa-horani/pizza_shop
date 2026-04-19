@@ -2,6 +2,14 @@ import 'server-only';
 import { Resend } from 'resend';
 import { getServerEnv } from '@/lib/env';
 
+export function formatCents(cents: number): string {
+  return `$${(cents / 100).toFixed(2)}`;
+}
+
+export function applyDiscount(cents: number, percent: number): number {
+  return Math.round(cents * (1 - percent / 100));
+}
+
 let resendClient: Resend | null = null;
 
 function getResend(): Resend {
