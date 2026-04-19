@@ -13,10 +13,12 @@ vi.mock('@/lib/env', () => ({
 
 const batchSend = vi.fn();
 vi.mock('resend', () => ({
-  Resend: vi.fn().mockImplementation(() => ({
-    emails: { send: vi.fn() },
-    batch: { send: batchSend },
-  })),
+  Resend: vi.fn().mockImplementation(function (this: unknown) {
+    return {
+      emails: { send: vi.fn() },
+      batch: { send: batchSend },
+    };
+  }),
 }));
 
 beforeEach(() => {
@@ -39,5 +41,69 @@ describe('applyDiscount', () => {
     expect(applyDiscount(1799, 10)).toBe(1619); // 1619.1 rounded
     expect(applyDiscount(1000, 0)).toBe(1000);
     expect(applyDiscount(1000, 100)).toBe(0);
+  });
+});
+
+const sampleProduct = {
+  _id: 'prod-1',
+  title: 'Margherita',
+  slug: 'margherita',
+  description: 'Classic tomato, mozzarella, basil.',
+  imageUrl: 'https://cdn.test/margherita.jpg',
+  basePrice: 1800,
+};
+
+describe('sendNewProductEmail', () => {
+  it('chunks 250 recipients into three batch.send calls of 100/100/50', async () => {
+    batchSend.mockResolvedValue({ data: {}, error: null });
+    const recipients = Array.from({ length: 250 }, (_, i) => ({ email: `u${i}@t.test` }));
+
+    const { sendNewProductEmail } = await import('./email');
+    await sendNewProductEmail({ product: sampleProduct, recipients });
+
+    expect(batchSend).toHaveBeenCalledTimes(3);
+    expect((batchSend.mock.calls[0][0] as unknown[]).length).toBe(100);
+    expect((batchSend.mock.calls[1][0] as unknown[]).length).toBe(100);
+    expect((batchSend.mock.calls[2][0] as unknown[]).length).toBe(50);
+  });
+
+  it('uses RESEND_FROM_EMAIL and per-recipient `to`', async () => {
+    batchSend.mockResolvedValue({ data: {}, error: null });
+    const recipients = [{ email: 'a@t.test', name: 'A' }, { email: 'b@t.test' }];
+
+    const { sendNewProductEmail } = await import('./email');
+    await sendNewProductEmail({ product: sampleProduct, recipients });
+
+    const payload = batchSend.mock.calls[0][0] as Array<{ from: string; to: string; subject: string; html: string }>;
+    expect(payload).toHaveLength(2);
+    expect(payload[0].from).toBe('shop@pizza.test');
+    expect(payload[0].to).toBe('a@t.test');
+    expect(payload[0].subject).toContain('Margherita');
+    expect(payload[0].html).toContain('NEW ON THE MENU');
+    expect(payload[0].html).toContain('https://cdn.test/margherita.jpg');
+    expect(payload[0].html).toContain('https://pizza.test/product/margherita');
+  });
+
+  it('logs and continues when a single batch rejects', async () => {
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    batchSend
+      .mockRejectedValueOnce(new Error('boom'))
+      .mockResolvedValueOnce({ data: {}, error: null });
+
+    const recipients = Array.from({ length: 150 }, (_, i) => ({ email: `u${i}@t.test` }));
+    const { sendNewProductEmail } = await import('./email');
+    await expect(
+      sendNewProductEmail({ product: sampleProduct, recipients }),
+    ).resolves.toBeUndefined();
+
+    expect(batchSend).toHaveBeenCalledTimes(2);
+    expect(err).toHaveBeenCalled();
+    err.mockRestore();
+  });
+
+  it('no-ops on empty recipients', async () => {
+    const { sendNewProductEmail } = await import('./email');
+    await sendNewProductEmail({ product: sampleProduct, recipients: [] });
+    expect(batchSend).not.toHaveBeenCalled();
   });
 });
