@@ -1,6 +1,8 @@
 import { sanityClient } from './client';
 import type { Category, ProductDetail, ProductListItem } from './types';
 
+export type UserEmailRecipient = { email: string; name: string | null };
+
 const LIST_PROJECTION = `
   _id,
   title,
@@ -46,5 +48,14 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
       }
     }`,
     { slug },
+  );
+}
+
+export async function getAllUserEmails(): Promise<UserEmailRecipient[]> {
+  return sanityClient.fetch(
+    `*[_type == "user" && defined(email) && email != "" && email != "[deleted]"]{
+      email,
+      name
+    }`,
   );
 }

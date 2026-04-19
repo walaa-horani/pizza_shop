@@ -3,6 +3,8 @@ import { Webhook } from 'svix';
 import { getSanityWriteClient } from '@/sanity/serverClient';
 import { getServerEnv } from '@/lib/env';
 import { sendWelcomeEmail } from '@/lib/email';
+import { readBodyWithLimit, BodyTooLargeError } from '@/lib/http/readBody';
+import { rateLimit, clientKey, tooManyRequestsResponse } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -19,8 +21,20 @@ type ClerkUserEvent = {
 };
 
 export async function POST(req: Request): Promise<Response> {
+  const rl = await rateLimit('clerkWebhook', clientKey(req));
+  if (!rl.success) return tooManyRequestsResponse(rl);
+
   const { CLERK_WEBHOOK_SECRET } = getServerEnv();
-  const payload = await req.text();
+
+  let payload: string;
+  try {
+    payload = await readBodyWithLimit(req);
+  } catch (err) {
+    if (err instanceof BodyTooLargeError) {
+      return NextResponse.json({ error: 'payload too large' }, { status: 413 });
+    }
+    throw err;
+  }
 
   const svixId = req.headers.get('svix-id');
   const svixTimestamp = req.headers.get('svix-timestamp');

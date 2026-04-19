@@ -3,15 +3,28 @@ import type Stripe from 'stripe';
 import { getStripe } from '@/lib/stripe/server';
 import { getSanityWriteClient } from '@/sanity/serverClient';
 import { getServerEnv } from '@/lib/env';
+import { readBodyWithLimit, BodyTooLargeError } from '@/lib/http/readBody';
+import { rateLimit, clientKey, tooManyRequestsResponse } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request): Promise<Response> {
+  const rl = await rateLimit('stripeWebhook', clientKey(req));
+  if (!rl.success) return tooManyRequestsResponse(rl);
+
   const signature = req.headers.get('stripe-signature');
   if (!signature) return NextResponse.json({ error: 'missing signature' }, { status: 400 });
 
-  const rawBody = await req.text();
+  let rawBody: string;
+  try {
+    rawBody = await readBodyWithLimit(req);
+  } catch (err) {
+    if (err instanceof BodyTooLargeError) {
+      return NextResponse.json({ error: 'payload too large' }, { status: 413 });
+    }
+    throw err;
+  }
   const { STRIPE_WEBHOOK_SECRET } = getServerEnv();
 
   let event: Stripe.Event;

@@ -73,7 +73,18 @@ cp .env.local.example .env.local
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
 
-### 6. Seed Sanity content
+### 6. Rate limiting (optional, recommended for production)
+
+Webhook routes and the checkout server action enforce per-IP / per-user rate limits via [Upstash Ratelimit](https://upstash.com/docs/redis/sdks/ratelimit-ts/overview) when the following two vars are set. If they're absent, the limiter logs a warning and no-ops — safe for local dev.
+
+```
+UPSTASH_REDIS_REST_URL=https://...upstash.io
+UPSTASH_REDIS_REST_TOKEN=...
+```
+
+Create a free Redis database at [console.upstash.com](https://console.upstash.com) and copy the REST URL/token from the database page.
+
+### 7. Seed Sanity content
 
 ```bash
 npm run seed
@@ -81,7 +92,7 @@ npm run seed
 
 Creates categories, toppings, and six products.
 
-### 7. Run
+### 8. Run
 
 ```bash
 npm run dev

@@ -1,11 +1,13 @@
 'use server';
 
+import { headers } from 'next/headers';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { checkoutPayloadSchema, type CheckoutPayload } from '@/lib/validation/checkout';
 import { getSanityWriteClient } from '@/sanity/serverClient';
 import { getStripe } from '@/lib/stripe/server';
 import { summarize } from '@/lib/cart/pricing';
 import { publicEnv } from '@/lib/env';
+import { rateLimit } from '@/lib/rate-limit';
 
 type ActionResult =
   | { ok: true; url: string }
@@ -19,6 +21,21 @@ function orderNumber() {
 }
 
 export async function checkout(rawInput: unknown): Promise<ActionResult> {
+  // Rate-limit before any parse/DB work. Key by Clerk user id when signed in,
+  // otherwise by client IP so a single guest / script cannot flood the action.
+  const { userId: rlUserId } = await auth();
+  let rlKey = rlUserId ? `u:${rlUserId}` : '';
+  if (!rlKey) {
+    const h = await headers();
+    const xff = h.get('x-forwarded-for');
+    const ip = xff ? xff.split(',')[0]!.trim() : (h.get('x-real-ip') ?? 'unknown');
+    rlKey = `ip:${ip}`;
+  }
+  const rl = await rateLimit('checkoutAction', rlKey);
+  if (!rl.success) {
+    return { ok: false, formError: 'Too many checkout attempts. Please wait a moment and try again.' };
+  }
+
   const parsed = checkoutPayloadSchema.safeParse(rawInput);
   if (!parsed.success) {
     // Surface errors keyed by form field name (not nested under "form") so the
@@ -103,7 +120,7 @@ export async function checkout(rawInput: unknown): Promise<ActionResult> {
     payload.form.deliverySpeed,
   );
 
-  const { userId } = await auth();
+  const userId = rlUserId;
   let userRef: string | null = null;
   let buyerEmail = payload.form.email;
   if (userId) {
