@@ -5,6 +5,7 @@ import { getServerEnv } from '@/lib/env';
 import { getAllUserEmails } from '@/sanity/queries';
 import { sendNewProductEmail, sendDiscountEmail } from '@/lib/email';
 import { readBodyWithLimit, BodyTooLargeError } from '@/lib/http/readBody';
+import { rateLimit, clientKey, tooManyRequestsResponse } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -24,6 +25,9 @@ type ProductWebhookPayload = {
 };
 
 export async function POST(req: Request): Promise<Response> {
+  const rl = await rateLimit('sanityWebhook', clientKey(req));
+  if (!rl.success) return tooManyRequestsResponse(rl);
+
   const signature = req.headers.get(SIGNATURE_HEADER_NAME);
   if (!signature) {
     return NextResponse.json({ error: 'missing signature' }, { status: 401 });

@@ -21,6 +21,9 @@ type ClerkUserEvent = {
 };
 
 export async function POST(req: Request): Promise<Response> {
+  const rl = await rateLimit('clerkWebhook', clientKey(req));
+  if (!rl.success) return tooManyRequestsResponse(rl);
+
   const { CLERK_WEBHOOK_SECRET } = getServerEnv();
 
   let payload: string;

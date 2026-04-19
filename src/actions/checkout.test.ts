@@ -26,6 +26,10 @@ vi.mock('@/lib/env', () => ({
 // revalidatePath is imported from next/cache but we don't need it to do anything in tests
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 
+vi.mock('next/headers', () => ({
+  headers: async () => new Headers({ 'x-forwarded-for': '127.0.0.1' }),
+}));
+
 const sampleItem = {
   lineId: 'l1',
   productId: 'p1',
