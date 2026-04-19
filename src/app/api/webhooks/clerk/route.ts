@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { Webhook } from 'svix';
 import { getSanityWriteClient } from '@/sanity/serverClient';
 import { getServerEnv } from '@/lib/env';
+import { sendWelcomeEmail } from '@/lib/email';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -56,6 +57,14 @@ export async function POST(req: Request): Promise<Response> {
       await write.patch(existing).set({ email, name }).commit();
     } else {
       await write.create({ _type: 'user', clerkUserId: event.data.id, email, name });
+
+      if (event.type === 'user.created' && email) {
+        try {
+          await sendWelcomeEmail({ to: email, name });
+        } catch (err) {
+          console.error('welcome email failed', err);
+        }
+      }
     }
   }
 

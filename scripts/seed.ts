@@ -1,5 +1,8 @@
-import 'dotenv/config';
+import { config as loadEnv } from 'dotenv';
 import { createClient } from 'next-sanity';
+
+loadEnv({ path: '.env.local' });
+loadEnv({ path: '.env' });
 import { z } from 'zod';
 
 const env = z
